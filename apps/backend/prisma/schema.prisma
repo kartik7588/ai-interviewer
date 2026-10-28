@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Interview {
+  id             String          @id @default(uuid())
+  githubMetadata Json
+  status         InterviewStatus
+  score          Int             @default(0)
+  feedback       String?
+  conversations  Message[]
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id])
+  role           String          @default("Full-stack")
+  experience     String          @default("Intermediate")
+  difficulty     String          @default("Medium")
+  duration       Int             @default(15)
+  topics         Json            @default("[]")
+  studyPlan      String?
+  strengths      Json?
+  weaknesses     Json?
+  skillScores    SkillScore[]
+  resumeText     String?
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  interviews   Interview[]
+}
+
+model SkillScore {
+  id          String    @id @default(uuid())
+  skill       String
+  score       Int
+  feedback    String
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  message     String
+  type        MessageType
+  interviewId String
+  createdAt   DateTime    @default(now())
+  interview   Interview   @relation(fields: [interviewId], references: [id])
+}
+
+enum MessageType {
+  User
+  Assistant
+}
+
+enum InterviewStatus {
+  Pre
+  InProgress
+  Done
+}
