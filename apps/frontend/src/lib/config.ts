@@ -1,4 +1,5 @@
 
-// Browser bundles do not provide Node's `process.env`. Bun exposes build-time
-// variables through `import.meta.env` instead.
-export const BACKEND_URL = import.meta.env.BACKEND_URL || "http://localhost:3001";
+// Bun's browser dev server does not always define import.meta.env. Keep the
+// production build override, while making local development safe by default.
+const buildEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
+export const BACKEND_URL = buildEnv?.BACKEND_URL || "http://localhost:3001";
